@@ -131,7 +131,13 @@ function reset_play(){
 	player2.disabled = false;
 
 	board_state = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
-	turn_info = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"]
+	var correct_turn_state = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"];
+	var element;
+	for(var i = 0; i < table_ids.length; i++)
+	{
+		element = document.getElementById(table_ids[i]);
+		element.innerHTML = correct_turn_state[i];
+	}
 
 	document.getElementById("turn_info").innerHTML = "Game has not begun.";
 }
@@ -153,8 +159,66 @@ The method should do all the things as stated in rule 2.
 
 */
 function play() {
+	if(!game_started())
+	{
+		alert("game hasnt started");
+		return;
+	}
 	move = document.getElementById("move_text_id");
-	if(table.indexOf(move.value) < -1)
+	var val = table_ids.indexOf(move.value);
+	if(val > -1 && (board_state[val] != 0 && board_state[val] != 1))
+	{
+		var update = document.getElementById(table_ids[val]);
+		if(whose_move())
+		{
+			update.innerHTML = 'X';
+			board_state[val] = 1;
+			document.getElementById("turn_info").innerHTML = "Turn is: O";
+		}
+		else {
+			update.innerHTML = 'O';
+			board_state[val] = 0;
+			document.getElementById("turn_info").innerHTML = "Turn is: X";
+		}
+		toggle_move();
+		var winning_combinations = [[board_state[0], board_state[1], board_state[2]],
+		[board_state[3], board_state[4], board_state[5]], [board_state[6], board_state[7], board_state[8]],
+		[board_state[0], board_state[3], board_state[6]], [board_state[1], board_state[4], board_state[7]],
+		[board_state[2], board_state[5], board_state[8]],
+		[board_state[0], board_state[4], board_state[8]], [board_state[2], board_state[4], board_state[6]]];
+		var usage;
+		for(var i = 0; i < winning_combinations.length; i++)
+		{
+			usage = winning_combinations[i];
+			if(usage[0] == 1 && usage[1] == 1 && usage[2] == 1)
+			{
+				alert("X has won the game.");
+				reset_play();
+				break;
+			}
+			else if(usage[0] == 0 && usage[1] == 0 && usage[2] == 0)
+			{
+				alert("O has won the game.");
+				reset_play();
+				break;
+			}
+		}
+		var counter = 0;
+		for(var i = 0; i < table_ids.length; i++)
+		{
+			if(table_ids[i] == 'O' || table_ids[i] == 'X')
+			{
+				counter++
+			}
+		}
+		if(counter == 9)
+		{
+			reset_play()
+		}
+	}
+	else {
+		alert("Invalid move. Please try again.");
+	}
 }
 
 /*
